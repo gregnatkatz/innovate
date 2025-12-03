@@ -1533,7 +1533,7 @@ const App = () => {
                         <div className="font-medium text-white line-clamp-2 mb-1">{idea.title}</div>
                         <div className="flex items-center space-x-1">
                           <img src={getHeadshot(idea.submitter_name)} alt="" className="w-4 h-4 rounded-full" />
-                          <span className="text-gray-400 truncate">{idea.submitter_name.split(' ')[0]}</span>
+                          <span className="text-gray-400 truncate">{idea.submitter_name?.split(' ')[0] || 'Unknown'}</span>
                         </div>
                       </div>
                     ))}
