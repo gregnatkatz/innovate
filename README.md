@@ -6,7 +6,9 @@ A comprehensive healthcare innovation management platform that enables organizat
 
 > 2-minute end-to-end walkthrough of the ContosoHealth Innovation Hub, following Sarah Chen's AI-Powered Nurse Scheduling idea from submission through executive approval and value realization.
 
-![ContosoHealth Innovation Hub Demo](demo_video.mp4)
+<video controls width="100%" src="demo_video.mp4" poster="screenshots/01_dashboard.png">
+  Your browser does not support the video tag.
+</video>
 
 [Download demo video](demo_video.mp4) if the player doesn't load.
 
