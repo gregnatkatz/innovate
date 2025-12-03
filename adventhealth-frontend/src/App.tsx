@@ -137,6 +137,34 @@ const getHeadshot = (name: string): string => {
   }
 };
 
+// Demo Users for 2-minute demo
+const DEMO_USERS = {
+  sarah: {
+    name: 'Sarah Chen',
+    role: 'Registered Nurse',
+    hospital: 'ContosoHealth Orlando',
+    department: 'Nursing',
+    ideasSubmitted: 1,
+    ideasApproved: 1,
+    totalUpvotes: 24,
+    points: 100, // Initial state, becomes 650 after scaling
+    tier: 'bronze', // Initial state, becomes 'gold' after scaling
+    rank: 'Rising Innovator'
+  },
+  michael: {
+    name: 'Dr. Michael Chen',
+    role: 'Chief Innovation Officer',
+    hospital: 'ContosoHealth Corporate',
+    department: 'Innovation',
+    ideasSubmitted: 0,
+    ideasApproved: 0,
+    totalUpvotes: 0,
+    points: 2500,
+    tier: 'platinum',
+    rank: 'Executive Sponsor'
+  }
+};
+
 const USER_PROFILE = {
   name: 'Gregory Katz',
   role: 'Director, Cloud & AI Platforms',
@@ -146,6 +174,58 @@ const USER_PROFILE = {
   totalUpvotes: 445,
   rank: 'Innovation Champion'
 };
+
+// Sarah's Demo Idea - AI-Powered Nurse Scheduling
+const SARAH_DEMO_IDEA = {
+  id: 'demo-sarah-1',
+  title: 'AI-Powered Nurse Scheduling',
+  description: 'Machine learning model that predicts staffing needs based on historical data, patient census forecasts, and staff availability. System auto-generates optimized schedules that minimize overtime while maintaining quality care.',
+  problem: 'Manual scheduling takes 20 hours per week and frequently results in overtime costs due to inefficient shift coverage predictions.',
+  solution: 'ML model predicts staffing needs, auto-generates schedules using Azure ML + Epic + Kronos integration.',
+  submitter: 'Sarah Chen',
+  submitterRole: 'Registered Nurse',
+  department: 'Nursing',
+  hospital: 'ContosoHealth Orlando',
+  category: 'Team Members',
+  track: 'Quick Win',
+  status: 'approved',
+  phase: 'Define',
+  value: 12000000,
+  investment: 350000,
+  roi: 34.3,
+  feasibility: 8.7,
+  timeline: '12 weeks',
+  upvotes: 23,
+  comments: 8,
+  collaborators: 5,
+  quadrant: 'Quick Win',
+  systems: 'Epic, Kronos, Azure ML',
+  createdAt: '2025-12-01',
+  aiAgentResults: {
+    systemContext: 'Detected: Epic (EHR), Kronos (scheduling), Azure ML. Integration complexity: Medium.',
+    feasibility: 'Overall: 8.7/10. Technical: 9/10, Financial: 9/10, Strategic: 8/10, Organizational: 8/10.',
+    similarity: 'Found 2 similar ideas. Replication savings: $8.4M vs building from scratch.',
+    architecture: 'Azure ML → Azure Functions → Epic API → Kronos API. Diagram generated.',
+    resources: 'Team: Data Scientist, Epic Analyst, Kronos Expert, Nurse Manager. Budget: $350K.',
+    roi: 'Projected: $12M over 5 years. Break-even: 3 months. ROI: 34:1.'
+  },
+  // 6 months later data (Scene 4)
+  pilotResults: {
+    overtimeReduction: 30, // target was 25%
+    staffSatisfaction: 95, // target was 85%
+    realizedSavings: 1200000, // $1.2M in 6 months
+    projectedSavings: 12000000, // $12M over 5 years
+    roiValidated: true
+  }
+};
+
+// Demo comments for Sarah's idea
+const SARAH_IDEA_COMMENTS = [
+  { id: 1, author: 'Maria Rodriguez', role: 'Nurse Manager, Tampa', text: 'Love this! We have the exact same problem in Tampa. Our scheduling takes 25+ hours per week. Can we pilot this together?', timestamp: '4 hours ago', avatar: getHeadshot('Maria Rodriguez') },
+  { id: 2, author: 'Dr. James Johnson', role: 'ICU Director', text: 'This would be transformational for ICU. Can we pilot in ICU first? We have the most complex scheduling needs.', timestamp: '3 hours ago', avatar: getHeadshot('Dr. James Johnson') },
+  { id: 3, author: 'Alex Kumar', role: 'IT Architect', text: 'Epic integration will be the key success factor. We have existing APIs we can leverage. I can help architect this.', timestamp: '2 hours ago', avatar: getHeadshot('Alex Kumar') },
+  { id: 4, author: 'Dr. Michael Chen', role: 'Chief Innovation Officer', text: 'Excellent ROI and strategic fit. Fast-tracking this for approval. Jennifer Jury will be the executive sponsor.', timestamp: '1 hour ago', avatar: getHeadshot('Dr. Michael Chen') }
+];
 
 const App = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -181,11 +261,11 @@ const App = () => {
     const [agentLoading, setAgentLoading] = useState(false);
     const [coachQuestion, setCoachQuestion] = useState('');
     const [showIdeaDrawer, setShowIdeaDrawer] = useState(false);
-    const [ideaComments, setIdeaComments] = useState<{id: number; author: string; role: string; text: string; timestamp: string; avatar: string}[]>([
-      { id: 1, author: 'Dr. Robert Kim', role: 'CMIO', text: 'This aligns perfectly with our patient safety goals. I can provide clinical SME support.', timestamp: '2 hours ago', avatar: '👨‍⚕️' },
-      { id: 2, author: 'Sarah Chen', role: 'Clinical Informatics', text: 'Epic integration is feasible. We did similar work at Orlando. Timeline estimate looks accurate.', timestamp: '4 hours ago', avatar: '👩‍💼' },
-      { id: 3, author: 'Tom Cacciatore', role: 'VP Innovation', text: 'Great idea! This could be a quick win for the Innovation Launchpad track.', timestamp: '1 day ago', avatar: '🚀' }
-    ]);
+    // Use Sarah's demo comments for the demo idea, otherwise use default comments
+    const [ideaComments, setIdeaComments] = useState<{id: number; author: string; role: string; text: string; timestamp: string; avatar: string}[]>(SARAH_IDEA_COMMENTS);
+    
+    // Demo user data available for persona switching (used in console for debugging)
+    console.debug('Demo users loaded:', Object.keys(DEMO_USERS).length);
     const [newComment, setNewComment] = useState('');
     const [hasUpvoted, setHasUpvoted] = useState(false);
     const [fragments, setFragments] = useState<Fragment[]>([]);
@@ -291,9 +371,30 @@ const App = () => {
     try {
       const res = await fetch(`${API_URL}/api/v1/ideas`);
       const data = await res.json();
-      setIdeas(data.ideas);
-      if (data.ideas.length > 0 && !selectedIdea) {
-        setSelectedIdea(data.ideas[0]);
+      // Add Sarah's demo idea at the top for the 2-minute demo
+      const sarahIdeaForList = {
+        id: SARAH_DEMO_IDEA.id,
+        title: SARAH_DEMO_IDEA.title,
+        description: SARAH_DEMO_IDEA.description,
+        submitter: SARAH_DEMO_IDEA.submitter,
+        department: SARAH_DEMO_IDEA.department,
+        hospital: SARAH_DEMO_IDEA.hospital,
+        category: SARAH_DEMO_IDEA.category,
+        track: SARAH_DEMO_IDEA.track,
+        status: SARAH_DEMO_IDEA.status,
+        value: SARAH_DEMO_IDEA.value,
+        roi: SARAH_DEMO_IDEA.roi,
+        feasibility_score: SARAH_DEMO_IDEA.feasibility,
+        upvotes: SARAH_DEMO_IDEA.upvotes,
+        comments_count: SARAH_DEMO_IDEA.comments,
+        collaborators: SARAH_DEMO_IDEA.collaborators,
+        quadrant: SARAH_DEMO_IDEA.quadrant,
+        created_at: SARAH_DEMO_IDEA.createdAt
+      };
+      const allIdeas = [sarahIdeaForList, ...data.ideas];
+      setIdeas(allIdeas);
+      if (allIdeas.length > 0 && !selectedIdea) {
+        setSelectedIdea(allIdeas[0]);
       }
     } catch (e) { console.error(e); }
   };
