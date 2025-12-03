@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, Lightbulb, TrendingUp, Settings, Bell, Search, Plus, 
-  Filter, ChevronDown, ChevronRight, X, ThumbsUp, 
+  Filter, ChevronDown, ChevronRight, X, XCircle, ThumbsUp, 
   DollarSign, Target, CheckCircle, 
   BarChart3, FileText, Brain,
   User, LogOut, HelpCircle, Sparkles, Rocket, Trophy,
@@ -1329,12 +1329,12 @@ const App = () => {
 
     const PipelineView = () => {
       const stages = [
-        { id: 'define', name: 'DEFINE', description: 'Problem framing & opportunity identification', color: 'from-blue-600 to-blue-700', icon: Target },
-        { id: 'research', name: 'RESEARCH', description: 'User research & market analysis', color: 'from-purple-600 to-purple-700', icon: Search },
-        { id: 'co-create', name: 'CO-CREATE', description: 'Ideation & collaborative design', color: 'from-pink-600 to-pink-700', icon: Users },
-        { id: 'design-value', name: 'DESIGN VALUE', description: 'Business case & value proposition', color: 'from-orange-600 to-orange-700', icon: DollarSign },
-        { id: 'prototype', name: 'PROTOTYPE', description: 'Build & test MVP', color: 'from-green-600 to-green-700', icon: Layers },
-        { id: 'pilot', name: 'PILOT', description: 'Real-world validation & scale prep', color: 'from-teal-600 to-teal-700', icon: Rocket }
+        { id: 'define', name: 'DEFINE', description: 'Problem framing & opportunity identification', color: 'from-blue-600 to-blue-700', icon: Target, deliverables: ['Problem Statement', 'Stakeholder Map', 'Opportunity Brief'] },
+        { id: 'research', name: 'RESEARCH', description: 'User research & market analysis', color: 'from-purple-600 to-purple-700', icon: Search, deliverables: ['User Interviews', 'Market Analysis', 'Competitive Landscape'] },
+        { id: 'co-create', name: 'CO-CREATE', description: 'Ideation & collaborative design', color: 'from-pink-600 to-pink-700', icon: Users, deliverables: ['Design Workshop', 'Concept Sketches', 'User Feedback'] },
+        { id: 'design-value', name: 'DESIGN VALUE', description: 'Business case & value proposition', color: 'from-orange-600 to-orange-700', icon: DollarSign, deliverables: ['Business Case', 'ROI Model', 'Value Proposition'] },
+        { id: 'prototype', name: 'PROTOTYPE', description: 'Build & test MVP', color: 'from-green-600 to-green-700', icon: Layers, deliverables: ['MVP Build', 'User Testing', 'Technical Spec'] },
+        { id: 'pilot', name: 'PILOT', description: 'Real-world validation & scale prep', color: 'from-teal-600 to-teal-700', icon: Rocket, deliverables: ['Pilot Plan', 'Success Metrics', 'Scale Roadmap'] }
       ];
 
       const getIdeasInStage = (stageId: string) => {
@@ -1344,6 +1344,12 @@ const App = () => {
       };
 
       const totalPipelineValue = ideas.reduce((sum, idea) => sum + (idea.estimated_value || 0), 0);
+      const [selectedStage, setSelectedStage] = useState<string | null>(null);
+      const [pendingApprovals] = useState([
+        { id: 1, title: 'AI Clinical Documentation', fromStage: 'Research', toStage: 'Co-Create', submitter: 'Dr. Michael Thompson', requestedDate: '2025-12-01' },
+        { id: 2, title: 'Smart Room IoT', fromStage: 'Co-Create', toStage: 'Design Value', submitter: 'Jennifer Adams', requestedDate: '2025-11-28' },
+        { id: 3, title: 'Patient Portal 2.0', fromStage: 'Design Value', toStage: 'Prototype', submitter: 'David Chen', requestedDate: '2025-11-25' },
+      ]);
 
       return (
         <div className="p-6 space-y-6">
@@ -1361,33 +1367,38 @@ const App = () => {
                 <div className="text-xs text-gray-400">Active Projects</div>
                 <div className="text-xl font-bold text-blue-400">{ideas.length}</div>
               </div>
+              <div className="bg-yellow-900/30 rounded-lg px-4 py-2 border border-yellow-700/50">
+                <div className="text-xs text-yellow-400">Pending Approvals</div>
+                <div className="text-xl font-bold text-yellow-400">{pendingApprovals.length}</div>
+              </div>
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-700 -translate-y-1/2 z-0" />
-            <div className="flex justify-between relative z-10">
+          <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="flex items-center justify-between overflow-x-auto pb-2">
               {stages.map((stage, index) => {
                 const stageIdeas = getIdeasInStage(stage.id);
-                const stageValue = stageIdeas.reduce((sum, idea) => sum + (idea.estimated_value || 0), 0);
                 const StageIcon = stage.icon;
+                const isSelected = selectedStage === stage.id;
                 return (
-                  <div key={stage.id} className="flex flex-col items-center" style={{ width: '16%' }}>
-                    <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${stage.color} flex items-center justify-center shadow-lg border-4 border-gray-900`}>
-                      <StageIcon className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="mt-3 text-center">
-                      <div className="text-sm font-bold text-white">{stage.name}</div>
-                      <div className="text-xs text-gray-400 mt-1">{stage.description}</div>
-                    </div>
-                    <div className="mt-2 bg-gray-800/80 rounded-lg px-3 py-2 border border-gray-700 text-center min-w-[100px]">
-                      <div className="text-lg font-bold text-white">{stageIdeas.length}</div>
-                      <div className="text-xs text-gray-400">ideas</div>
-                      <div className="text-xs text-green-400 mt-1">${(stageValue / 1000000).toFixed(1)}M</div>
+                  <div key={stage.id} className="flex items-center">
+                    <div 
+                      onClick={() => setSelectedStage(isSelected ? null : stage.id)}
+                      className={`flex flex-col items-center cursor-pointer transition-all ${isSelected ? 'scale-105' : 'hover:scale-102'}`} 
+                      style={{ minWidth: '140px' }}
+                    >
+                      <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${stage.color} flex items-center justify-center shadow-lg border-4 ${isSelected ? 'border-white' : 'border-gray-900'}`}>
+                        <StageIcon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="mt-2 text-center">
+                        <div className="text-xs font-bold text-white">{stage.name}</div>
+                        <div className="text-lg font-bold text-white">{stageIdeas.length}</div>
+                      </div>
                     </div>
                     {index < stages.length - 1 && (
-                      <div className="absolute top-8 text-gray-500" style={{ left: `${(index + 1) * 16.66 - 2}%` }}>
-                        <ChevronRight className="w-6 h-6" />
+                      <div className="mx-2 flex flex-col items-center">
+                        <ChevronRight className="w-5 h-5 text-gray-500" />
+                        <div className="text-xs text-gray-500 mt-1">Gate {index + 1}</div>
                       </div>
                     )}
                   </div>
@@ -1396,70 +1407,44 @@ const App = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-6 mt-8">
-            {stages.slice(0, 3).map(stage => {
+          <div className="grid grid-cols-6 gap-3">
+            {stages.map(stage => {
               const stageIdeas = getIdeasInStage(stage.id);
               const StageIcon = stage.icon;
               return (
-                <div key={stage.id} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stage.color} flex items-center justify-center`}>
-                      <StageIcon className="w-5 h-5 text-white" />
+                <div key={stage.id} className="bg-gray-800/50 rounded-xl border border-gray-700 flex flex-col" style={{ minHeight: '400px' }}>
+                  <div className={`p-3 rounded-t-xl bg-gradient-to-r ${stage.color}`}>
+                    <div className="flex items-center space-x-2">
+                      <StageIcon className="w-4 h-4 text-white" />
+                      <span className="text-sm font-bold text-white">{stage.name}</span>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-white">{stage.name}</h3>
-                      <p className="text-xs text-gray-400">{stageIdeas.length} projects</p>
-                    </div>
+                    <div className="text-xs text-white/80 mt-1">{stageIdeas.length} projects</div>
                   </div>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {stageIdeas.slice(0, 5).map(idea => (
-                      <div key={idea.id} onClick={() => { setSelectedIdea(idea); setShowIdeaDrawer(true); }} className="p-3 bg-gray-900/50 rounded-lg border border-gray-700 hover:border-blue-500/50 cursor-pointer transition">
-                        <div className="text-sm font-medium text-white line-clamp-1">{idea.title}</div>
-                        <div className="flex items-center justify-between mt-2 text-xs">
-                          <div className="flex items-center space-x-1">
-                            <img src={getHeadshot(idea.submitter_name)} alt={idea.submitter_name} className="w-4 h-4 rounded-full" />
-                            <span className="text-gray-400">{idea.submitter_name.split(' ')[0]}</span>
-                          </div>
-                          <span className="text-green-400">${((idea.estimated_value || 0) / 1000000).toFixed(1)}M</span>
+                  <div className="p-2 flex-1 overflow-y-auto space-y-2">
+                    {stageIdeas.slice(0, 6).map(idea => (
+                      <div 
+                        key={idea.id} 
+                        onClick={() => { setSelectedIdea(idea); setShowIdeaDrawer(true); }} 
+                        className="p-2 bg-gray-900/70 rounded-lg border border-gray-700 hover:border-blue-500/50 cursor-pointer transition text-xs"
+                        draggable
+                      >
+                        <div className="font-medium text-white line-clamp-2 mb-1">{idea.title}</div>
+                        <div className="flex items-center space-x-1">
+                          <img src={getHeadshot(idea.submitter_name)} alt="" className="w-4 h-4 rounded-full" />
+                          <span className="text-gray-400 truncate">{idea.submitter_name.split(' ')[0]}</span>
                         </div>
                       </div>
                     ))}
-                    {stageIdeas.length === 0 && <div className="text-center text-gray-500 py-4">No projects in this stage</div>}
+                    {stageIdeas.length === 0 && <div className="text-center text-gray-500 py-4 text-xs">No projects</div>}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="grid grid-cols-3 gap-6">
-            {stages.slice(3, 6).map(stage => {
-              const stageIdeas = getIdeasInStage(stage.id);
-              const StageIcon = stage.icon;
-              return (
-                <div key={stage.id} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stage.color} flex items-center justify-center`}>
-                      <StageIcon className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-white">{stage.name}</h3>
-                      <p className="text-xs text-gray-400">{stageIdeas.length} projects</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {stageIdeas.slice(0, 5).map(idea => (
-                      <div key={idea.id} onClick={() => { setSelectedIdea(idea); setShowIdeaDrawer(true); }} className="p-3 bg-gray-900/50 rounded-lg border border-gray-700 hover:border-blue-500/50 cursor-pointer transition">
-                        <div className="text-sm font-medium text-white line-clamp-1">{idea.title}</div>
-                        <div className="flex items-center justify-between mt-2 text-xs">
-                          <div className="flex items-center space-x-1">
-                            <img src={getHeadshot(idea.submitter_name)} alt={idea.submitter_name} className="w-4 h-4 rounded-full" />
-                            <span className="text-gray-400">{idea.submitter_name.split(' ')[0]}</span>
-                          </div>
-                          <span className="text-green-400">${((idea.estimated_value || 0) / 1000000).toFixed(1)}M</span>
-                        </div>
+                  <div className="p-2 border-t border-gray-700">
+                    <div className="text-xs text-gray-400 mb-1">Deliverables:</div>
+                    {stage.deliverables.map((d, i) => (
+                      <div key={i} className="flex items-center space-x-1 text-xs text-gray-500">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span>{d}</span>
                       </div>
                     ))}
-                    {stageIdeas.length === 0 && <div className="text-center text-gray-500 py-4">No projects in this stage</div>}
                   </div>
                 </div>
               );
@@ -1467,17 +1452,33 @@ const App = () => {
           </div>
 
           <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Stage Gate Approvals</h3>
-            <div className="grid grid-cols-5 gap-4">
-              {['Define → Research', 'Research → Co-Create', 'Co-Create → Design Value', 'Design Value → Prototype', 'Prototype → Pilot'].map((gate, index) => (
-                <div key={gate} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 text-center">
-                  <div className="text-xs text-gray-400 mb-2">Gate {index + 1}</div>
-                  <div className="text-sm font-medium text-white mb-2">{gate}</div>
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-green-900/30 border border-green-700/50 flex items-center justify-center">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Pending Gate Approvals</h3>
+              <span className="px-3 py-1 bg-yellow-900/30 text-yellow-400 rounded-full text-sm font-medium">{pendingApprovals.length} awaiting review</span>
+            </div>
+            <div className="space-y-3">
+              {pendingApprovals.map(approval => (
+                <div key={approval.id} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <img src={getHeadshot(approval.submitter)} alt="" className="w-10 h-10 rounded-full" />
+                    <div>
+                      <div className="text-white font-medium">{approval.title}</div>
+                      <div className="text-sm text-gray-400">{approval.submitter} • Requested {approval.requestedDate}</div>
                     </div>
-                    <span className="text-xs text-green-400">{Math.floor(Math.random() * 10) + 5} passed</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm text-gray-400">{approval.fromStage} → {approval.toStage}</div>
+                    <button className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center space-x-1">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Approve</span>
+                    </button>
+                    <button className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/50 rounded-lg text-sm font-medium flex items-center space-x-1">
+                      <XCircle className="w-4 h-4" />
+                      <span>Reject</span>
+                    </button>
+                    <button className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/50 rounded-lg text-sm font-medium">
+                      Request Info
+                    </button>
                   </div>
                 </div>
               ))}
@@ -1740,13 +1741,36 @@ const App = () => {
     };
 
     const EventsView = () => {
-      const events = [
-        { id: 1, title: 'Q1 Innovation Summit 2026', type: 'summit', date: 'Jan 15-16, 2026', location: 'ContosoHealth Corporate HQ, Orlando', description: 'Annual innovation showcase featuring top ideas from across the system', attendees: 250, speakers: ['Dr. Sarah Mitchell, CIO', 'Gregory Katz, VP Innovation', 'Dr. Amanda Chen, CMO'], status: 'upcoming', registrationOpen: true },
-        { id: 2, title: 'AI in Healthcare Workshop', type: 'workshop', date: 'Dec 12, 2025', location: 'Virtual (Teams)', description: 'Hands-on workshop on implementing AI solutions in clinical workflows', attendees: 85, speakers: ['Dr. Michael Thompson', 'Lisa Rodriguez'], status: 'upcoming', registrationOpen: true },
-        { id: 3, title: 'Design Thinking Bootcamp', type: 'bootcamp', date: 'Dec 18-19, 2025', location: 'ContosoHealth Tampa', description: 'Two-day intensive on human-centered design for healthcare innovation', attendees: 40, speakers: ['Tom Wilson, Design Lead'], status: 'upcoming', registrationOpen: true },
-        { id: 4, title: 'November Innovation Showcase', type: 'showcase', date: 'Nov 20, 2025', location: 'Virtual', description: 'Monthly showcase of approved innovations and their impact', attendees: 312, speakers: ['Various Innovators'], status: 'completed', registrationOpen: false },
-        { id: 5, title: 'Epic Integration Deep Dive', type: 'workshop', date: 'Jan 8, 2026', location: 'ContosoHealth Orlando', description: 'Technical workshop on FHIR APIs and Epic integration patterns', attendees: 45, speakers: ['Robert Kim, Integration Architect'], status: 'upcoming', registrationOpen: true }
-      ];
+      const [events, setEvents] = useState([
+        { id: 1, title: 'Q1 Innovation Summit 2026', type: 'summit', date: 'Jan 15-16, 2026', location: 'ContosoHealth Corporate HQ, Orlando', description: 'Annual innovation showcase featuring top ideas from across the system', attendees: 250, capacity: 300, speakers: ['Dr. Sarah Mitchell, CIO', 'Gregory Katz, VP Innovation', 'Dr. Amanda Chen, CMO'], status: 'upcoming', registrationOpen: true, registered: false },
+        { id: 2, title: 'AI in Healthcare Workshop', type: 'workshop', date: 'Dec 12, 2025', location: 'Virtual (Teams)', description: 'Hands-on workshop on implementing AI solutions in clinical workflows', attendees: 85, capacity: 100, speakers: ['Dr. Michael Thompson', 'Lisa Rodriguez'], status: 'upcoming', registrationOpen: true, registered: false },
+        { id: 3, title: 'Design Thinking Bootcamp', type: 'bootcamp', date: 'Dec 18-19, 2025', location: 'ContosoHealth Tampa', description: 'Two-day intensive on human-centered design for healthcare innovation', attendees: 40, capacity: 50, speakers: ['Tom Wilson, Design Lead'], status: 'upcoming', registrationOpen: true, registered: false },
+        { id: 4, title: 'November Innovation Showcase', type: 'showcase', date: 'Nov 20, 2025', location: 'Virtual', description: 'Monthly showcase of approved innovations and their impact', attendees: 312, capacity: 500, speakers: ['Various Innovators'], status: 'completed', registrationOpen: false, registered: true },
+        { id: 5, title: 'Epic Integration Deep Dive', type: 'workshop', date: 'Jan 8, 2026', location: 'ContosoHealth Orlando', description: 'Technical workshop on FHIR APIs and Epic integration patterns', attendees: 45, capacity: 60, speakers: ['Robert Kim, Integration Architect'], status: 'upcoming', registrationOpen: true, registered: false }
+      ]);
+      const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+      const [showDetailsModal, setShowDetailsModal] = useState(false);
+      const [selectedEvent, setSelectedEventForReg] = useState<any>(null);
+      const [registrationStep, setRegistrationStep] = useState(1);
+
+      const handleRegister = (event: any) => {
+        setSelectedEventForReg(event);
+        setShowRegistrationModal(true);
+        setRegistrationStep(1);
+      };
+
+      const handleViewDetails = (event: any) => {
+        setSelectedEventForReg(event);
+        setShowDetailsModal(true);
+      };
+
+      const completeRegistration = () => {
+        if (selectedEvent) {
+          setEvents(events.map(e => e.id === selectedEvent.id ? { ...e, registered: true, attendees: e.attendees + 1 } : e));
+        }
+        setShowRegistrationModal(false);
+        setSelectedEventForReg(null);
+      };
 
       const typeColors: Record<string, string> = {
         summit: 'bg-purple-900/50 text-purple-300 border-purple-700/50',
@@ -1778,8 +1802,8 @@ const App = () => {
               <div className="text-3xl font-bold text-blue-400">{events.reduce((sum, e) => sum + e.attendees, 0)}</div>
             </div>
             <div className="bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-xl p-5 border border-green-700/50">
-              <div className="text-sm text-gray-400 mb-1">Workshops This Month</div>
-              <div className="text-3xl font-bold text-green-400">2</div>
+              <div className="text-sm text-gray-400 mb-1">Your Registrations</div>
+              <div className="text-3xl font-bold text-green-400">{events.filter(e => e.registered).length}</div>
             </div>
             <div className="bg-gradient-to-br from-yellow-900/30 to-orange-900/30 rounded-xl p-5 border border-yellow-700/50">
               <div className="text-sm text-gray-400 mb-1">Next Summit</div>
@@ -1789,7 +1813,7 @@ const App = () => {
 
           <div className="space-y-4">
             {events.map(event => (
-              <div key={event.id} className={`bg-gray-800/50 rounded-xl p-6 border ${event.status === 'upcoming' ? 'border-blue-700/50' : 'border-gray-700'}`}>
+              <div key={event.id} className={`bg-gray-800/50 rounded-xl p-6 border ${event.registered ? 'border-green-700/50' : event.status === 'upcoming' ? 'border-blue-700/50' : 'border-gray-700'}`}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
@@ -1799,6 +1823,12 @@ const App = () => {
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${event.status === 'upcoming' ? 'bg-green-900/50 text-green-300' : 'bg-gray-700 text-gray-300'}`}>
                         {event.status.toUpperCase()}
                       </span>
+                      {event.registered && (
+                        <span className="px-2 py-1 rounded text-xs font-semibold bg-green-900/50 text-green-300 border border-green-700/50 flex items-center space-x-1">
+                          <CheckCircle className="w-3 h-3" />
+                          <span>REGISTERED</span>
+                        </span>
+                      )}
                       {showMonetary && event.attendees >= 100 && (
                         <span className="px-2 py-1 rounded text-xs font-semibold bg-yellow-900/50 text-yellow-300 border border-yellow-700/50 flex items-center space-x-1">
                           <Zap className="w-3 h-3" />
@@ -1819,8 +1849,14 @@ const App = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Users className="w-4 h-4 text-green-400" />
-                        <span className="text-gray-300">{event.attendees} registered</span>
+                        <span className="text-gray-300">{event.attendees}/{event.capacity} registered</span>
                       </div>
+                    </div>
+                    <div className="mt-2 w-48">
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div className={`h-2 rounded-full ${event.attendees / event.capacity > 0.9 ? 'bg-red-500' : event.attendees / event.capacity > 0.7 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${(event.attendees / event.capacity) * 100}%` }} />
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1">{Math.round((event.attendees / event.capacity) * 100)}% capacity</div>
                     </div>
                     <div className="mt-3 flex items-center space-x-2">
                       <span className="text-xs text-gray-400">Speakers:</span>
@@ -1833,19 +1869,177 @@ const App = () => {
                     </div>
                   </div>
                   <div className="flex flex-col items-end space-y-2">
-                    {event.registrationOpen ? (
-                      <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold text-sm">
+                    {event.registered ? (
+                      <div className="flex flex-col items-end space-y-2">
+                        <span className="px-4 py-2 bg-green-900/30 text-green-400 rounded-lg text-sm font-medium flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>You're Registered!</span>
+                        </span>
+                        <button className="text-red-400 hover:text-red-300 text-sm">Cancel Registration</button>
+                      </div>
+                    ) : event.registrationOpen ? (
+                      <button onClick={() => handleRegister(event)} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold text-sm">
                         Register Now
                       </button>
                     ) : (
                       <span className="px-4 py-2 bg-gray-700 text-gray-400 rounded-lg text-sm">Registration Closed</span>
                     )}
-                    <button className="text-blue-400 hover:text-blue-300 text-sm">View Details</button>
+                    <button onClick={() => handleViewDetails(event)} className="text-blue-400 hover:text-blue-300 text-sm">View Details</button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {showDetailsModal && selectedEvent && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+              <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-2xl border border-gray-700 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white">Event Details</h2>
+                  <button onClick={() => setShowDetailsModal(false)} className="text-gray-400 hover:text-white">
+                    <XCircle className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-3 py-1 rounded text-sm font-semibold border ${typeColors[selectedEvent.type]}`}>{selectedEvent.type.toUpperCase()}</span>
+                    <span className={`px-3 py-1 rounded text-sm font-semibold ${selectedEvent.status === 'upcoming' ? 'bg-green-900/50 text-green-300' : 'bg-gray-700 text-gray-300'}`}>{selectedEvent.status.toUpperCase()}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-2">{selectedEvent.title}</h3>
+                    <p className="text-gray-400">{selectedEvent.description}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                      <div className="flex items-center space-x-2 text-blue-400 mb-2"><Clock className="w-5 h-5" /><span className="font-semibold">Date & Time</span></div>
+                      <div className="text-white">{selectedEvent.date}</div>
+                      <div className="text-sm text-gray-400 mt-1">9:00 AM - 5:00 PM EST</div>
+                    </div>
+                    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                      <div className="flex items-center space-x-2 text-purple-400 mb-2"><Target className="w-5 h-5" /><span className="font-semibold">Location</span></div>
+                      <div className="text-white">{selectedEvent.location}</div>
+                      <div className="text-sm text-gray-400 mt-1">{selectedEvent.location.includes('Virtual') ? 'Teams link will be sent' : 'Parking available'}</div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                    <div className="flex items-center space-x-2 text-green-400 mb-3"><Users className="w-5 h-5" /><span className="font-semibold">Registration Status</span></div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white">{selectedEvent.attendees} / {selectedEvent.capacity} registered</span>
+                      <span className={`text-sm ${selectedEvent.attendees / selectedEvent.capacity > 0.9 ? 'text-red-400' : selectedEvent.attendees / selectedEvent.capacity > 0.7 ? 'text-yellow-400' : 'text-green-400'}`}>{Math.round((selectedEvent.attendees / selectedEvent.capacity) * 100)}% capacity</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-3">
+                      <div className={`h-3 rounded-full ${selectedEvent.attendees / selectedEvent.capacity > 0.9 ? 'bg-red-500' : selectedEvent.attendees / selectedEvent.capacity > 0.7 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${(selectedEvent.attendees / selectedEvent.capacity) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                    <div className="font-semibold text-white mb-3">Speakers & Presenters</div>
+                    <div className="space-y-3">
+                      {selectedEvent.speakers.map((speaker: string, idx: number) => (
+                        <div key={idx} className="flex items-center space-x-3">
+                          <img src={getHeadshot(speaker)} alt={speaker} className="w-10 h-10 rounded-full" />
+                          <div>
+                            <div className="text-white font-medium">{speaker.split(',')[0]}</div>
+                            <div className="text-sm text-gray-400">{speaker.includes(',') ? speaker.split(',')[1].trim() : 'Speaker'}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                    <div className="font-semibold text-white mb-3">Agenda</div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-400">9:00 AM</span><span className="text-white">Registration & Networking</span></div>
+                      <div className="flex justify-between"><span className="text-gray-400">9:30 AM</span><span className="text-white">Opening Keynote</span></div>
+                      <div className="flex justify-between"><span className="text-gray-400">10:30 AM</span><span className="text-white">Breakout Sessions</span></div>
+                      <div className="flex justify-between"><span className="text-gray-400">12:00 PM</span><span className="text-white">Lunch & Innovation Showcase</span></div>
+                      <div className="flex justify-between"><span className="text-gray-400">1:30 PM</span><span className="text-white">Hands-on Workshops</span></div>
+                      <div className="flex justify-between"><span className="text-gray-400">4:00 PM</span><span className="text-white">Closing & Next Steps</span></div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-3">
+                    {selectedEvent.registrationOpen && !selectedEvent.registered && (
+                      <button onClick={() => { setShowDetailsModal(false); handleRegister(selectedEvent); }} className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold">Register Now</button>
+                    )}
+                    {selectedEvent.registered && (
+                      <div className="flex-1 py-3 bg-green-900/30 text-green-400 rounded-lg font-semibold text-center flex items-center justify-center space-x-2">
+                        <CheckCircle className="w-5 h-5" /><span>You're Registered!</span>
+                      </div>
+                    )}
+                    <button onClick={() => setShowDetailsModal(false)} className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showRegistrationModal && selectedEvent && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+              <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-lg border border-gray-700">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white">Event Registration</h2>
+                  <button onClick={() => setShowRegistrationModal(false)} className="text-gray-400 hover:text-white">
+                    <XCircle className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="flex items-center justify-center mb-6">
+                  {[1, 2, 3].map(step => (
+                    <div key={step} className="flex items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${registrationStep >= step ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                        {registrationStep > step ? <CheckCircle className="w-5 h-5" /> : step}
+                      </div>
+                      {step < 3 && <div className={`w-16 h-1 ${registrationStep > step ? 'bg-blue-600' : 'bg-gray-700'}`} />}
+                    </div>
+                  ))}
+                </div>
+                {registrationStep === 1 && (
+                  <div className="space-y-4">
+                    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                      <h3 className="text-lg font-semibold text-white mb-2">{selectedEvent.title}</h3>
+                      <div className="text-sm text-gray-400">{selectedEvent.date} • {selectedEvent.location}</div>
+                    </div>
+                    <div className="space-y-3">
+                      <div><label className="text-sm text-gray-400">Full Name</label><input type="text" defaultValue="Gregory Katz" className="w-full mt-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white" /></div>
+                      <div><label className="text-sm text-gray-400">Email</label><input type="email" defaultValue="gregory.katz@contosohealth.com" className="w-full mt-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white" /></div>
+                      <div><label className="text-sm text-gray-400">Department</label><input type="text" defaultValue="Cloud & AI Platforms" className="w-full mt-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white" /></div>
+                    </div>
+                    <button onClick={() => setRegistrationStep(2)} className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold">Continue</button>
+                  </div>
+                )}
+                {registrationStep === 2 && (
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <div><label className="text-sm text-gray-400">Dietary Requirements</label><select className="w-full mt-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white"><option>None</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-Free</option><option>Kosher</option><option>Halal</option></select></div>
+                      <div><label className="text-sm text-gray-400">Accessibility Needs</label><textarea className="w-full mt-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white" rows={2} placeholder="Any accessibility requirements..." /></div>
+                      <div className="flex items-center space-x-2"><input type="checkbox" id="virtual" className="rounded" /><label htmlFor="virtual" className="text-sm text-gray-300">I'll attend virtually (if available)</label></div>
+                    </div>
+                    <div className="flex space-x-3">
+                      <button onClick={() => setRegistrationStep(1)} className="flex-1 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold">Back</button>
+                      <button onClick={() => setRegistrationStep(3)} className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold">Continue</button>
+                    </div>
+                  </div>
+                )}
+                {registrationStep === 3 && (
+                  <div className="space-y-4">
+                    <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-4 text-center">
+                      <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-2" />
+                      <h3 className="text-lg font-semibold text-white">Ready to Register!</h3>
+                      <p className="text-sm text-gray-400 mt-1">You'll receive a confirmation email with calendar invite</p>
+                    </div>
+                    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 space-y-2">
+                      <div className="flex justify-between text-sm"><span className="text-gray-400">Event</span><span className="text-white">{selectedEvent.title}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-gray-400">Date</span><span className="text-white">{selectedEvent.date}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-gray-400">Location</span><span className="text-white">{selectedEvent.location}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-gray-400">Attendee</span><span className="text-white">Gregory Katz</span></div>
+                    </div>
+                    <button onClick={completeRegistration} className="w-full py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold flex items-center justify-center space-x-2">
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Complete Registration</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       );
     };
@@ -1982,48 +2176,43 @@ const App = () => {
     };
 
     const PortfolioTimelineView = () => {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const projects = [
-        { id: 1, name: 'AI-Powered Patient Triage', owner: 'Dr. Sarah Mitchell', department: 'Emergency', startMonth: 0, duration: 4, status: 'in-progress', value: '$12.5M' },
-        { id: 2, name: 'Smart Medication Dispensing', owner: 'Dr. Michael Thompson', department: 'Pharmacy', startMonth: 1, duration: 6, status: 'in-progress', value: '$8.2M' },
-        { id: 3, name: 'Predictive Readmission Model', owner: 'Lisa Rodriguez', department: 'Analytics', startMonth: 2, duration: 5, status: 'in-progress', value: '$15.8M' },
-        { id: 4, name: 'Virtual Nursing Assistant', owner: 'Jennifer Adams', department: 'Nursing', startMonth: 3, duration: 8, status: 'planned', value: '$22.1M' },
-        { id: 5, name: 'Revenue Cycle Automation', owner: 'Robert Kim', department: 'Finance', startMonth: 0, duration: 3, status: 'completed', value: '$6.5M' },
-        { id: 6, name: 'Epic FHIR Integration Hub', owner: 'David Chen', department: 'IT', startMonth: 4, duration: 6, status: 'planned', value: '$9.8M' },
-        { id: 7, name: 'Patient Experience Portal', owner: 'Maria Garcia', department: 'Patient Experience', startMonth: 2, duration: 4, status: 'in-progress', value: '$5.2M' },
-        { id: 8, name: 'Supply Chain Optimization', owner: 'Tom Wilson', department: 'Operations', startMonth: 5, duration: 5, status: 'planned', value: '$11.3M' }
+      const quarters = [
+        { year: 2024, q: 4 },
+        { year: 2025, q: 1 },
+        { year: 2025, q: 2 },
+        { year: 2025, q: 3 },
+        { year: 2025, q: 4 },
+        { year: 2026, q: 1 },
       ];
+      const totalQuarters = quarters.length;
+      const getQuarterIndex = (year: number, q: number) => quarters.findIndex(t => t.year === year && t.q === q);
 
-      const statusColors: Record<string, string> = {
-        'completed': 'bg-green-500',
-        'in-progress': 'bg-blue-500',
-        'planned': 'bg-purple-500'
-      };
+      const projects = [
+        { id: 1, name: 'AI-Powered Patient Triage', owner: 'Dr. Sarah Mitchell', lane: 'Clinical Excellence', start: { year: 2024, q: 4 }, end: { year: 2025, q: 2 }, status: 'in-progress', color: '#22C55E', value: '$12.5M', milestones: [{ label: 'Pilot Go-Live', year: 2025, q: 1 }] },
+        { id: 2, name: 'Smart Room of the Future', owner: 'Dr. Michael Thompson', lane: 'Consumer Experience', start: { year: 2025, q: 1 }, end: { year: 2025, q: 3 }, status: 'in-progress', color: '#3B82F6', value: '$18.2M', milestones: [{ label: 'Design Complete', year: 2025, q: 2 }] },
+        { id: 3, name: 'Primary Care, The ContosoHealth Way', owner: 'Lisa Rodriguez', lane: 'Strategic', start: { year: 2025, q: 2 }, end: { year: 2025, q: 4 }, status: 'planned', color: '#F97316', value: '$25.0M', milestones: [] },
+        { id: 4, name: 'Heart Failure + Coalition Clinical Value', owner: 'Jennifer Adams', lane: 'Clinical Excellence', start: { year: 2024, q: 4 }, end: { year: 2025, q: 3 }, status: 'in-progress', color: '#EC4899', value: '$15.8M', milestones: [{ label: 'CAB Approval', year: 2025, q: 1 }] },
+        { id: 5, name: 'PX/HX Transformation', owner: 'Robert Kim', lane: 'Consumer Experience', start: { year: 2025, q: 1 }, end: { year: 2025, q: 4 }, status: 'in-progress', color: '#8B5CF6', value: '$22.1M', milestones: [{ label: 'Phase 1', year: 2025, q: 2 }, { label: 'Phase 2', year: 2025, q: 3 }] },
+        { id: 6, name: 'Increasing Consumer Access', owner: 'David Chen', lane: 'Growth', start: { year: 2025, q: 3 }, end: { year: 2026, q: 1 }, status: 'planned', color: '#06B6D4', value: '$9.8M', milestones: [] },
+        { id: 7, name: 'Spiritual Care Pilot', owner: 'Maria Garcia', lane: 'Whole Person Care', start: { year: 2024, q: 4 }, end: { year: 2025, q: 2 }, status: 'completed', color: '#10B981', value: '$5.2M', milestones: [{ label: 'Complete', year: 2025, q: 2 }] },
+        { id: 8, name: 'AHMG Pilot', owner: 'Tom Wilson', lane: 'Strategic', start: { year: 2024, q: 4 }, end: { year: 2025, q: 1 }, status: 'completed', color: '#EAB308', value: '$6.5M', milestones: [] }
+      ];
 
       return (
         <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">2025 Portfolio Timeline</h1>
-              <p className="text-gray-400">Gantt-style view of all innovation projects</p>
+              <h1 className="text-2xl font-bold text-white">2025 Portfolio Roadmap</h1>
+              <p className="text-sm text-gray-400">Executive view of Design Center projects across quarters</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded bg-green-500" />
-                <span className="text-gray-400 text-sm">Completed</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded bg-blue-500" />
-                <span className="text-gray-400 text-sm">In Progress</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded bg-purple-500" />
-                <span className="text-gray-400 text-sm">Planned</span>
-              </div>
+            <div className="flex items-center space-x-4 text-xs text-gray-300">
+              <span className="flex items-center space-x-1"><span className="w-3 h-3 rounded-full bg-green-500" /><span>Completed</span></span>
+              <span className="flex items-center space-x-1"><span className="w-3 h-3 rounded-full bg-blue-500" /><span>In Progress</span></span>
+              <span className="flex items-center space-x-1"><span className="w-3 h-3 rounded-full bg-purple-500" /><span>Planned</span></span>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-xl p-5 border border-blue-700/50">
               <div className="text-sm text-gray-400 mb-1">Active Projects</div>
               <div className="text-3xl font-bold text-blue-400">{projects.filter(p => p.status === 'in-progress').length}</div>
@@ -2038,69 +2227,76 @@ const App = () => {
             </div>
             <div className="bg-gradient-to-br from-yellow-900/30 to-orange-900/30 rounded-xl p-5 border border-yellow-700/50">
               <div className="text-sm text-gray-400 mb-1">Total Value</div>
-              <div className="text-2xl font-bold text-yellow-400">$91.4M</div>
+              <div className="text-2xl font-bold text-yellow-400">$115.1M</div>
             </div>
           </div>
 
-          <div className="bg-gray-800/50 rounded-xl border border-gray-700 overflow-hidden">
-            <div className="grid grid-cols-13 border-b border-gray-700">
-              <div className="col-span-1 p-3 bg-gray-900/50 text-gray-400 text-sm font-semibold">Project</div>
-              {months.map((month, idx) => (
-                <div key={idx} className="p-3 bg-gray-900/50 text-gray-400 text-sm font-semibold text-center border-l border-gray-700">
-                  {month}
+          <div className="bg-gray-900/60 border border-gray-700 rounded-2xl p-6 shadow-xl overflow-x-auto">
+            <div style={{ display: 'grid', gridTemplateColumns: `250px repeat(${totalQuarters}, 1fr)`, minWidth: '900px' }}>
+              <div style={{ gridRow: 1, gridColumn: 1, padding: '8px 12px', borderBottom: '1px solid #374151' }}>
+                <span className="text-sm font-semibold text-gray-400">Project</span>
+              </div>
+              {quarters.map((q, idx) => (
+                <div key={idx} style={{ gridRow: 1, gridColumn: idx + 2, textAlign: 'center', padding: '8px 0', borderBottom: '1px solid #374151', borderLeft: '1px solid #374151' }}>
+                  <div className="text-sm font-semibold text-gray-300">Q{q.q}</div>
+                  <div className="text-xs text-gray-500">{q.year}</div>
                 </div>
               ))}
-            </div>
-            {projects.map(project => (
-              <div key={project.id} className="grid grid-cols-13 border-b border-gray-700/50 hover:bg-gray-700/20">
-                <div className="col-span-1 p-3">
-                  <div className="flex items-center space-x-2">
-                    <img src={getHeadshot(project.owner)} alt={project.owner} className="w-6 h-6 rounded-full" />
-                    <div>
-                      <div className="text-white text-sm font-medium truncate" style={{ maxWidth: '150px' }}>{project.name}</div>
-                      <div className="text-gray-500 text-xs">{project.department}</div>
+
+              {projects.map((project, rowIndex) => {
+                const startIdx = getQuarterIndex(project.start.year, project.start.q);
+                const endIdx = getQuarterIndex(project.end.year, project.end.q);
+                const barStartCol = startIdx + 2;
+                const barEndCol = endIdx + 3;
+
+                return (
+                  <React.Fragment key={project.id}>
+                    <div style={{ gridRow: rowIndex + 2, gridColumn: 1, padding: '12px', borderBottom: '1px solid #1F2937' }}>
+                      <div className="text-sm font-semibold text-white">{project.name}</div>
+                      <div className="text-xs text-gray-400">{project.lane} • {project.owner}</div>
                     </div>
-                  </div>
-                </div>
-                {months.map((_, monthIdx) => (
-                  <div key={monthIdx} className="p-2 border-l border-gray-700/50 relative">
-                    {monthIdx >= project.startMonth && monthIdx < project.startMonth + project.duration && (
-                      <div 
-                        className={`h-6 rounded ${statusColors[project.status]} ${monthIdx === project.startMonth ? 'rounded-l-full' : ''} ${monthIdx === project.startMonth + project.duration - 1 ? 'rounded-r-full' : ''}`}
-                        style={{ opacity: 0.8 }}
-                      >
-                        {monthIdx === project.startMonth && (
-                          <span className="text-white text-xs font-semibold px-2 whitespace-nowrap">{project.value}</span>
-                        )}
+                    {quarters.map((_, qIdx) => (
+                      <div key={qIdx} style={{ gridRow: rowIndex + 2, gridColumn: qIdx + 2, borderLeft: '1px solid #374151', borderBottom: '1px solid #1F2937', position: 'relative', minHeight: '50px' }} />
+                    ))}
+                    <div style={{ gridRow: rowIndex + 2, gridColumn: `${barStartCol} / ${barEndCol}`, position: 'relative', display: 'flex', alignItems: 'center', padding: '8px 4px', zIndex: 10 }}>
+                      <div style={{ width: '100%', height: '28px', borderRadius: '14px', background: `linear-gradient(90deg, ${project.color}, ${project.color}CC)`, boxShadow: '0 2px 8px rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', paddingLeft: '12px', fontSize: '11px', color: '#fff', fontWeight: 600, position: 'relative' }}>
+                        {project.value}
+                        {project.milestones?.map((m, mIdx) => {
+                          const mQIdx = getQuarterIndex(m.year, m.q);
+                          const spanQuarters = Math.max(1, endIdx - startIdx + 1);
+                          const relPos = (mQIdx - startIdx + 0.5) / spanQuarters;
+                          return (
+                            <div key={mIdx} title={m.label} style={{ position: 'absolute', left: `${relPos * 100}%`, top: '-4px', width: '12px', height: '12px', borderRadius: '50%', border: '2px solid #FACC15', backgroundColor: '#1F2937', transform: 'translateX(-50%)' }} />
+                          );
+                        })}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ))}
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+            </div>
           </div>
 
           <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-            <h2 className="text-lg font-bold text-white mb-4">Project Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {projects.slice(0, 4).map(project => (
-                <div key={project.id} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-white font-semibold">{project.name}</h3>
-                    <span className={`px-2 py-1 rounded text-xs font-semibold ${project.status === 'completed' ? 'bg-green-900/50 text-green-300' : project.status === 'in-progress' ? 'bg-blue-900/50 text-blue-300' : 'bg-purple-900/50 text-purple-300'}`}>
-                      {project.status.toUpperCase().replace('-', ' ')}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <img src={getHeadshot(project.owner)} alt={project.owner} className="w-5 h-5 rounded-full" />
-                    <span className="text-gray-400 text-sm">{project.owner}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{project.department}</span>
-                    <span className="text-green-400 font-semibold">{project.value}</span>
-                  </div>
-                </div>
-              ))}
+            <h2 className="text-lg font-bold text-white mb-4">Launchpad vs Design Center</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-3 px-4 text-gray-400 font-semibold">Criteria</th>
+                    <th className="text-center py-3 px-4 text-blue-400 font-semibold">Innovation Launchpad</th>
+                    <th className="text-center py-3 px-4 text-purple-400 font-semibold">Design Center</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-700/50"><td className="py-3 px-4 text-white">Focus</td><td className="py-3 px-4 text-center text-gray-300">Foster culture of innovation</td><td className="py-3 px-4 text-center text-gray-300">2030 Aspiration Projects</td></tr>
+                  <tr className="border-b border-gray-700/50"><td className="py-3 px-4 text-white">Scope</td><td className="py-3 px-4 text-center text-gray-300">Bottom-up ideas from all staff</td><td className="py-3 px-4 text-center text-gray-300">Strategic, cabinet-sponsored</td></tr>
+                  <tr className="border-b border-gray-700/50"><td className="py-3 px-4 text-white">Duration</td><td className="py-3 px-4 text-center text-gray-300">Ongoing submissions</td><td className="py-3 px-4 text-center text-gray-300">4-12 month engagements</td></tr>
+                  <tr className="border-b border-gray-700/50"><td className="py-3 px-4 text-white">Budget</td><td className="py-3 px-4 text-center text-gray-300">$0-$50K quick wins</td><td className="py-3 px-4 text-center text-gray-300">$350K-$750K+ projects</td></tr>
+                  <tr className="border-b border-gray-700/50"><td className="py-3 px-4 text-white">Approval</td><td className="py-3 px-4 text-center text-gray-300">Department level</td><td className="py-3 px-4 text-center text-gray-300">Corporate Cabinet</td></tr>
+                  <tr><td className="py-3 px-4 text-white">AI Support</td><td className="py-3 px-4 text-center text-gray-300">9 AI Agents for analysis</td><td className="py-3 px-4 text-center text-gray-300">Full service design team</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
