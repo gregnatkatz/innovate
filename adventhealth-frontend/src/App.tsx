@@ -31,6 +31,16 @@ interface Idea {
   estimated_roi: number;
   feasibility_score: number;
   business_value_score: number;
+  // Additional fields for Sarah's demo idea
+  comments_count?: number;
+  roi?: number;
+  value?: number;
+  timeline_weeks?: number;
+  investment?: number;
+  collaborators?: number;
+  description?: string;
+  department?: string;
+  created_at?: string;
 }
 
 interface Dashboard {
@@ -377,7 +387,7 @@ const App = () => {
         id: SARAH_DEMO_IDEA.id,
         title: SARAH_DEMO_IDEA.title,
         description: SARAH_DEMO_IDEA.description,
-        submitter: SARAH_DEMO_IDEA.submitter,
+        submitter_name: SARAH_DEMO_IDEA.submitter,
         department: SARAH_DEMO_IDEA.department,
         hospital: SARAH_DEMO_IDEA.hospital,
         category: SARAH_DEMO_IDEA.category,
@@ -390,7 +400,11 @@ const App = () => {
         comments_count: SARAH_DEMO_IDEA.comments,
         collaborators: SARAH_DEMO_IDEA.collaborators,
         quadrant: SARAH_DEMO_IDEA.quadrant,
-        created_at: SARAH_DEMO_IDEA.createdAt
+        created_at: SARAH_DEMO_IDEA.createdAt,
+        problem_statement: SARAH_DEMO_IDEA.problem,
+        proposed_solution: SARAH_DEMO_IDEA.solution,
+        timeline_weeks: 12,
+        investment: SARAH_DEMO_IDEA.investment
       };
       const allIdeas = [sarahIdeaForList, ...data.ideas];
       setIdeas(allIdeas);
@@ -849,14 +863,14 @@ const App = () => {
       <div className="grid grid-cols-3 gap-2 mb-3">
         {showMonetary ? (
           <>
-            <div className="bg-gray-900/50 rounded p-2">
-              <div className="text-xs text-gray-400">Value</div>
-              <div className="text-sm font-bold text-white">${(idea.estimated_value / 1000000).toFixed(1)}M</div>
-            </div>
-            <div className="bg-gray-900/50 rounded p-2">
-              <div className="text-xs text-gray-400">ROI</div>
-              <div className="text-sm font-bold text-green-400">{idea.estimated_roi}:1</div>
-            </div>
+                        <div className="bg-gray-900/50 rounded p-2">
+                          <div className="text-xs text-gray-400">Value</div>
+                          <div className="text-sm font-bold text-white">${((idea.value || idea.estimated_value || 0) / 1000000).toFixed(1)}M</div>
+                        </div>
+                        <div className="bg-gray-900/50 rounded p-2">
+                          <div className="text-xs text-gray-400">ROI</div>
+                          <div className="text-sm font-bold text-green-400">{idea.roi || idea.estimated_roi || 'N/A'}:1</div>
+                        </div>
             <div className="bg-gray-900/50 rounded p-2">
               <div className="text-xs text-gray-400">Score</div>
               <div className="text-sm font-bold text-blue-400">{idea.feasibility_score}/10</div>
@@ -868,9 +882,9 @@ const App = () => {
               <div className="text-xs text-gray-400">Upvotes</div>
               <div className="text-sm font-bold text-purple-400">{idea.upvotes}</div>
             </div>
-            <div className="bg-gray-900/50 rounded p-2">
-              <div className="text-xs text-gray-400">Comments</div>
-              <div className="text-sm font-bold text-blue-400">{Math.floor(idea.upvotes / 3)}</div>
+                        <div className="bg-gray-900/50 rounded p-2">
+                          <div className="text-xs text-gray-400">Comments</div>
+                          <div className="text-sm font-bold text-blue-400">{idea.comments_count || Math.floor(idea.upvotes / 3)}</div>
             </div>
             <div className="bg-gray-900/50 rounded p-2">
               <div className="text-xs text-gray-400">Score</div>
@@ -2812,12 +2826,12 @@ const App = () => {
                     <>
                       <div className="bg-gray-800/50 rounded-lg p-3 text-center">
                         <DollarSign className="w-5 h-5 text-green-400 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-white">${(selectedIdea.estimated_value / 1000000).toFixed(1)}M</div>
-                        <div className="text-xs text-gray-400">Value</div>
-                      </div>
-                      <div className="bg-gray-800/50 rounded-lg p-3 text-center">
-                        <Target className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-white">{selectedIdea.estimated_roi}:1</div>
+                                              <div className="text-lg font-bold text-white">${((selectedIdea.value || selectedIdea.estimated_value || 0) / 1000000).toFixed(1)}M</div>
+                                              <div className="text-xs text-gray-400">Value</div>
+                                            </div>
+                                            <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                              <Target className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                              <div className="text-lg font-bold text-white">{selectedIdea.roi || selectedIdea.estimated_roi || 'N/A'}:1</div>
                         <div className="text-xs text-gray-400">ROI</div>
                       </div>
                     </>
@@ -2830,8 +2844,8 @@ const App = () => {
                       </div>
                       <div className="bg-gray-800/50 rounded-lg p-3 text-center">
                         <MessageSquare className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-white">{Math.floor(selectedIdea.upvotes / 3)}</div>
-                        <div className="text-xs text-gray-400">Comments</div>
+                                                <div className="text-lg font-bold text-white">{selectedIdea.comments_count || Math.floor(selectedIdea.upvotes / 3)}</div>
+                                                <div className="text-xs text-gray-400">Comments</div>
                       </div>
                     </>
                   )}
@@ -2919,7 +2933,7 @@ const App = () => {
                     </div>
                     <div>
                       <div className="text-gray-400 text-xs uppercase mb-1">Success Metrics</div>
-                      <div className="text-white">ROI: {selectedIdea.estimated_roi}:1 | Value: ${(selectedIdea.estimated_value / 1000000).toFixed(1)}M | Timeline: 16 weeks</div>
+                      <div className="text-white">ROI: {selectedIdea.roi || selectedIdea.estimated_roi || 'N/A'}:1 | Value: ${((selectedIdea.value || selectedIdea.estimated_value || 0) / 1000000).toFixed(1)}M | Timeline: {selectedIdea.timeline_weeks || 16} weeks</div>
                     </div>
                     <div>
                       <div className="text-gray-400 text-xs uppercase mb-1">Key Stakeholders</div>
