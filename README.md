@@ -2,6 +2,14 @@
 
 A comprehensive healthcare innovation management platform that enables organizations to capture, evaluate, and scale innovative ideas from across the enterprise.
 
+## Demo Video
+
+> 2-minute end-to-end walkthrough of the ContosoHealth Innovation Hub, following Sarah Chen's AI-Powered Nurse Scheduling idea from submission through executive approval and value realization.
+
+![ContosoHealth Innovation Hub Demo](demo_video.mp4)
+
+[Download demo video](demo_video.mp4) if the player doesn't load.
+
 ## Value Proposition
 
 The ContosoHealth Innovation Hub transforms how healthcare organizations manage innovation by providing a unified platform that connects frontline innovators with executive decision-makers. The platform delivers measurable business value through streamlined idea capture and evaluation, AI-powered analysis and recommendations, portfolio management with $100M+ value tracking, and gamification that drives engagement across the organization.
@@ -82,20 +90,44 @@ Clicking any idea opens a slide-out drawer with full details including problem s
 ## Screenshots
 
 ### Innovator Dashboard
-![Innovator Dashboard](screenshots/05-innovator-dashboard.png)
-The Innovator view shows engagement-focused metrics including Total Upvotes and Collaborations instead of financial values.
+![Innovator Dashboard](screenshots/01_dashboard.png)
+
+The Innovator view shows engagement-focused metrics including Total Upvotes and Collaborations. Sarah Chen's AI-Powered Nurse Scheduling idea appears in Trending Ideas with 23 upvotes, 8 comments, and 8.7/10 feasibility score.
+
+### Idea Details
+![Idea Details](screenshots/02_idea_details.png)
+
+Clicking any idea opens a slide-out drawer with full details including problem statement, proposed solution, expected benefits, deliverable artifacts (Charter, POV, Strategic Concepts, Business Case, Architecture, Service Plan, BRD), and key metrics. Sarah Chen's idea shows $12M value, 34.3:1 ROI, and 12-week timeline.
+
+### Strategic Fit Rubric
+![Strategic Fit Rubric](screenshots/03_rubric.png)
+
+The 6-dimension rubric evaluates ideas across Value Dimensions (Emotional Needs, Revenue Impact) and Effort Dimensions (Drastic Change, Pilot Complexity, People/Build, Technology/CAPEX). AI-recommended scores can be adjusted manually, and the system automatically calculates quadrant placement.
+
+### Discussion & Crowdsourcing
+![Discussion & Crowdsourcing](screenshots/04_discussion.png)
+
+Community engagement through threaded discussions. Sarah's idea has 8 comments from stakeholders including Maria Rodriguez (Nurse Manager), Dr. James Johnson (ICU Director), Alex Kumar (IT Architect), and Dr. Michael Chen (Chief Innovation Officer) offering to collaborate and pilot.
 
 ### Executive Dashboard
-![Executive Dashboard](screenshots/06-executive-dashboard.png)
-The Executive view displays financial metrics including Total Value ($647.9M) and Average ROI (26.3:1).
+![Executive Dashboard](screenshots/05_executive.png)
 
-### Executive Challenges
-![Executive Challenges](screenshots/07-executive-challenges.png)
-Executive-specific challenges focus on ROI, strategic alignment, and cost reduction.
+The Executive view displays financial metrics including Total Value ($647.9M) and Average ROI (26.3:1). Sarah's idea shows Value: $12.0M and ROI: 34.3:1 in the Trending Ideas section.
 
 ### Design Center Pipeline
-![Design Center Pipeline](screenshots/03-value-tracker.png)
-The 6-stage innovation workflow with gate approvals and value tracking.
+![Design Center Pipeline](screenshots/06_design_center.png)
+
+The 6-stage innovation workflow (Define, Research, Co-Create, Design Value, Prototype, Pilot) with gate approvals. Shows 51 active projects with $452.8M pipeline value and 3 pending approvals. Sarah's AI-Powered Nurse Scheduling is in the Define stage.
+
+### Portfolio Timeline
+![Portfolio Timeline](screenshots/07_portfolio_timeline.png)
+
+Gantt-style roadmap showing project schedules across quarters (Q4 2024 through Q1 2026) with colored bars indicating progress. Shows 4 active projects, 2 completed, 2 planned, totaling $115.1M in value.
+
+### Events & Summits
+![Events & Summits](screenshots/08_events.png)
+
+Innovation events including summits, workshops, bootcamps, and showcases. Shows 4 upcoming events with 732 total registrations. Q1 Innovation Summit 2026 has high registration (250/300, 83% capacity).
 
 ## Technical Stack
 
