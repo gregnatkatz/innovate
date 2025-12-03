@@ -140,7 +140,7 @@ const getHeadshot = (name: string): string => {
 const USER_PROFILE = {
   name: 'Gregory Katz',
   role: 'Director, Cloud & AI Platforms',
-  hospital: 'Microsoft Corporation (AdventHealth)',
+  hospital: 'Microsoft Corporation (ContosoHealth)',
   ideasSubmitted: 3,
   ideasApproved: 2,
   totalUpvotes: 445,
@@ -381,7 +381,6 @@ const App = () => {
       { id: 'pipeline', icon: Layers, label: 'Design Center', badge: '6', personas: ['executive'] },
       { id: 'fragments', icon: MessageSquare, label: 'Idea Fragments', badge: String(fragments.length), personas: ['innovator'] },
       { id: 'ideas', icon: Lightbulb, label: 'All Ideas', badge: String(ideas.length), personas: ['executive', 'innovator'] },
-      { id: 'agents', icon: Brain, label: 'AI Agents', badge: '9', personas: ['executive', 'innovator'] },
       { id: 'challenges', icon: Flag, label: 'Challenges', badge: 'New', personas: ['executive', 'innovator'] },
       { id: 'value-tracker', icon: DollarSign, label: '$100M Tracker', badge: null, personas: ['executive'] },
       { id: 'analytics', icon: TrendingUp, label: 'Analytics', badge: null, personas: ['executive'] },
@@ -403,7 +402,7 @@ const App = () => {
             </div>
             <div>
               <div className="text-white font-bold text-lg">Innovation Hub</div>
-              <div className="text-xs text-gray-400">AdventHealth</div>
+              <div className="text-xs text-gray-400">ContosoHealth</div>
             </div>
           </div>
         </div>
@@ -866,29 +865,43 @@ const App = () => {
   const AnalyticsView = () => {
     const [timeRange, setTimeRange] = useState('YTD');
 
+    const allIdeasOverTime = [
+      { month: 'Jan', submitted: 8, approved: 3, value: 45, quarter: 'Q1' },
+      { month: 'Feb', submitted: 12, approved: 5, value: 67, quarter: 'Q1' },
+      { month: 'Mar', submitted: 15, approved: 8, value: 89, quarter: 'Q1' },
+      { month: 'Apr', submitted: 10, approved: 4, value: 52, quarter: 'Q2' },
+      { month: 'May', submitted: 18, approved: 9, value: 103, quarter: 'Q2' },
+      { month: 'Jun', submitted: 14, approved: 7, value: 78, quarter: 'Q2' },
+      { month: 'Jul', submitted: 16, approved: 6, value: 71, quarter: 'Q3' },
+      { month: 'Aug', submitted: 11, approved: 5, value: 62, quarter: 'Q3' },
+      { month: 'Sep', submitted: 13, approved: 7, value: 85, quarter: 'Q3' },
+      { month: 'Oct', submitted: 19, approved: 10, value: 112, quarter: 'Q4' },
+      { month: 'Nov', submitted: 22, approved: 12, value: 143, quarter: 'Q4' },
+      { month: 'Dec', submitted: 7, approved: 4, value: 41, quarter: 'Q4' },
+    ];
+
+    const ideasOverTime = timeRange === 'YTD' 
+      ? allIdeasOverTime 
+      : allIdeasOverTime.filter(d => d.quarter === timeRange);
+
+    const filteredTotals = ideasOverTime.reduce((acc, d) => ({
+      submitted: acc.submitted + d.submitted,
+      approved: acc.approved + d.approved,
+      value: acc.value + d.value
+    }), { submitted: 0, approved: 0, value: 0 });
+
     const kpiData = {
-      totalIdeas: dashboard?.total_ideas || 100,
-      approved: dashboard?.approved_ideas || 51,
-      inProgress: 38,
-      inReview: 11,
-      totalValue: 648000000,
-      avgROI: dashboard?.average_roi || 26.3,
+      totalIdeas: timeRange === 'YTD' ? (dashboard?.total_ideas || 100) : filteredTotals.submitted,
+      approved: timeRange === 'YTD' ? (dashboard?.approved_ideas || 51) : filteredTotals.approved,
+      inProgress: timeRange === 'YTD' ? 38 : Math.round(38 * (filteredTotals.submitted / 100)),
+      inReview: timeRange === 'YTD' ? 11 : Math.round(11 * (filteredTotals.submitted / 100)),
+      totalValue: timeRange === 'YTD' ? 648000000 : filteredTotals.value * 1000000,
+      avgROI: timeRange === 'YTD' ? (dashboard?.average_roi || 26.3) : (20 + Math.random() * 10).toFixed(1),
       avgTimeToApproval: 14,
-      employeeEngagement: 89,
-      replicationSavings: 23000000,
+      employeeEngagement: timeRange === 'YTD' ? 89 : (80 + Math.floor(Math.random() * 15)),
+      replicationSavings: timeRange === 'YTD' ? 23000000 : Math.round(23000000 * (filteredTotals.value / 948)),
       aiProcessingTime: 2.3,
     };
-
-    const ideasOverTime = [
-      { month: 'Jan', submitted: 8, approved: 3, value: 45 },
-      { month: 'Feb', submitted: 12, approved: 5, value: 67 },
-      { month: 'Mar', submitted: 15, approved: 8, value: 89 },
-      { month: 'Apr', submitted: 10, approved: 4, value: 52 },
-      { month: 'May', submitted: 18, approved: 9, value: 103 },
-      { month: 'Jun', submitted: 14, approved: 7, value: 78 },
-      { month: 'Jul', submitted: 16, approved: 6, value: 71 },
-      { month: 'Aug', submitted: 7, approved: 9, value: 143 },
-    ];
 
     const valueByCategory = [
       { name: 'Clinical Excellence', value: 189, ideas: 28, color: '#3B82F6' },
@@ -1478,14 +1491,14 @@ const App = () => {
       const innovatorChallenges = [
         { id: 1, title: 'Best Patient Safety Idea', theme: 'Clinical Safety Innovations', status: 'active', deadline: 'Dec 31, 2025', prize: '$500 Amazon Gift Card', submissions: 23, participants: 45, winner: null, audience: 'innovator' },
         { id: 2, title: 'Most Creative Solution', theme: 'Out-of-the-Box Thinking', status: 'active', deadline: 'Dec 31, 2025', prize: '$300 Starbucks Gift Card', submissions: 18, participants: 32, winner: null, audience: 'innovator' },
-        { id: 3, title: 'Community Choice Award', theme: 'Peer-Voted Excellence', status: 'completed', deadline: 'Nov 30, 2025', prize: '$400 Amazon Gift Card', submissions: 31, participants: 52, winner: { name: 'Dr. Sarah Chen', idea: 'AI-Powered Patient Communication', hospital: 'AdventHealth Orlando' }, audience: 'innovator' },
+        { id: 3, title: 'Community Choice Award', theme: 'Peer-Voted Excellence', status: 'completed', deadline: 'Nov 30, 2025', prize: '$400 Amazon Gift Card', submissions: 31, participants: 52, winner: { name: 'Dr. Sarah Chen', idea: 'AI-Powered Patient Communication', hospital: 'ContosoHealth Orlando' }, audience: 'innovator' },
         { id: 4, title: 'January Team Collaboration Challenge', theme: 'Cross-Department Innovation', status: 'upcoming', deadline: 'Jan 31, 2026', prize: '$500 Amazon Gift Card', submissions: 0, participants: 12, winner: null, audience: 'innovator' }
       ];
       
       const executiveChallenges = [
         { id: 5, title: 'Highest ROI Initiative', theme: 'Financial Impact Excellence', status: 'active', deadline: 'Dec 31, 2025', prize: 'Executive Recognition + $1000 Donation to Charity', submissions: 15, participants: 28, winner: null, audience: 'executive' },
         { id: 6, title: 'Strategic Alignment Award', theme: 'Mission-Driven Innovation', status: 'active', deadline: 'Dec 31, 2025', prize: 'Board Presentation Opportunity', submissions: 12, participants: 22, winner: null, audience: 'executive' },
-        { id: 7, title: 'Cost Reduction Champion', theme: 'Operational Efficiency', status: 'completed', deadline: 'Nov 30, 2025', prize: 'Executive Spotlight + $500 Amazon Gift Card', submissions: 28, participants: 41, winner: { name: 'Marcus Johnson', idea: 'AI-Powered Supply Chain Optimization', hospital: 'AdventHealth Tampa' }, audience: 'executive' },
+        { id: 7, title: 'Cost Reduction Champion', theme: 'Operational Efficiency', status: 'completed', deadline: 'Nov 30, 2025', prize: 'Executive Spotlight + $500 Amazon Gift Card', submissions: 28, participants: 41, winner: { name: 'Marcus Johnson', idea: 'AI-Powered Supply Chain Optimization', hospital: 'ContosoHealth Tampa' }, audience: 'executive' },
         { id: 8, title: 'Q1 Portfolio Excellence', theme: 'Best Portfolio Performance', status: 'upcoming', deadline: 'Mar 31, 2026', prize: 'Innovation Summit Keynote', submissions: 0, participants: 8, winner: null, audience: 'executive' }
       ];
       
@@ -1680,11 +1693,11 @@ const App = () => {
               <h3 className="text-lg font-semibold text-white mb-4">Top Realized Projects</h3>
               <div className="space-y-3">
                 {[
-                  { name: 'AI Clinical Documentation', value: 12500000, hospital: 'AdventHealth Corporate' },
-                  { name: 'Revenue Cycle Optimization', value: 8500000, hospital: 'AdventHealth Orlando' },
-                  { name: 'Predictive Sepsis Detection', value: 7200000, hospital: 'AdventHealth Tampa' },
-                  { name: 'ED Triage AI Assistant', value: 6800000, hospital: 'AdventHealth Altamonte' },
-                  { name: 'Supply Chain AI', value: 7500000, hospital: 'AdventHealth Corporate' }
+                  { name: 'AI Clinical Documentation', value: 12500000, hospital: 'ContosoHealth Corporate' },
+                  { name: 'Revenue Cycle Optimization', value: 8500000, hospital: 'ContosoHealth Orlando' },
+                  { name: 'Predictive Sepsis Detection', value: 7200000, hospital: 'ContosoHealth Tampa' },
+                  { name: 'ED Triage AI Assistant', value: 6800000, hospital: 'ContosoHealth Altamonte' },
+                  { name: 'Supply Chain AI', value: 7500000, hospital: 'ContosoHealth Corporate' }
                 ].map((project, idx) => (
                   <div key={idx} className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg">
                     <div>
@@ -1728,11 +1741,11 @@ const App = () => {
 
     const EventsView = () => {
       const events = [
-        { id: 1, title: 'Q1 Innovation Summit 2026', type: 'summit', date: 'Jan 15-16, 2026', location: 'AdventHealth Corporate HQ, Orlando', description: 'Annual innovation showcase featuring top ideas from across the system', attendees: 250, speakers: ['Dr. Sarah Mitchell, CIO', 'Gregory Katz, VP Innovation', 'Dr. Amanda Chen, CMO'], status: 'upcoming', registrationOpen: true },
+        { id: 1, title: 'Q1 Innovation Summit 2026', type: 'summit', date: 'Jan 15-16, 2026', location: 'ContosoHealth Corporate HQ, Orlando', description: 'Annual innovation showcase featuring top ideas from across the system', attendees: 250, speakers: ['Dr. Sarah Mitchell, CIO', 'Gregory Katz, VP Innovation', 'Dr. Amanda Chen, CMO'], status: 'upcoming', registrationOpen: true },
         { id: 2, title: 'AI in Healthcare Workshop', type: 'workshop', date: 'Dec 12, 2025', location: 'Virtual (Teams)', description: 'Hands-on workshop on implementing AI solutions in clinical workflows', attendees: 85, speakers: ['Dr. Michael Thompson', 'Lisa Rodriguez'], status: 'upcoming', registrationOpen: true },
-        { id: 3, title: 'Design Thinking Bootcamp', type: 'bootcamp', date: 'Dec 18-19, 2025', location: 'AdventHealth Tampa', description: 'Two-day intensive on human-centered design for healthcare innovation', attendees: 40, speakers: ['Tom Wilson, Design Lead'], status: 'upcoming', registrationOpen: true },
+        { id: 3, title: 'Design Thinking Bootcamp', type: 'bootcamp', date: 'Dec 18-19, 2025', location: 'ContosoHealth Tampa', description: 'Two-day intensive on human-centered design for healthcare innovation', attendees: 40, speakers: ['Tom Wilson, Design Lead'], status: 'upcoming', registrationOpen: true },
         { id: 4, title: 'November Innovation Showcase', type: 'showcase', date: 'Nov 20, 2025', location: 'Virtual', description: 'Monthly showcase of approved innovations and their impact', attendees: 312, speakers: ['Various Innovators'], status: 'completed', registrationOpen: false },
-        { id: 5, title: 'Epic Integration Deep Dive', type: 'workshop', date: 'Jan 8, 2026', location: 'AdventHealth Orlando', description: 'Technical workshop on FHIR APIs and Epic integration patterns', attendees: 45, speakers: ['Robert Kim, Integration Architect'], status: 'upcoming', registrationOpen: true }
+        { id: 5, title: 'Epic Integration Deep Dive', type: 'workshop', date: 'Jan 8, 2026', location: 'ContosoHealth Orlando', description: 'Technical workshop on FHIR APIs and Epic integration patterns', attendees: 45, speakers: ['Robert Kim, Integration Architect'], status: 'upcoming', registrationOpen: true }
       ];
 
       const typeColors: Record<string, string> = {
@@ -1849,7 +1862,7 @@ const App = () => {
         { name: 'Title', required: true, description: 'Brief title for the innovation idea' },
         { name: 'Description', required: true, description: 'Detailed description of the problem and solution' },
         { name: 'Department', required: true, description: 'Originating department (Nursing, IT, Pharmacy, etc.)' },
-        { name: 'Hospital', required: true, description: 'Hospital location (e.g., AdventHealth Orlando)' },
+        { name: 'Hospital', required: true, description: 'Hospital location (e.g., ContosoHealth Orlando)' },
         { name: 'Submitter Name', required: true, description: 'Name of the person submitting the idea' },
         { name: 'Submitter Email', required: true, description: 'Email address for follow-up' },
         { name: 'Estimated Value ($)', required: false, description: 'Projected annual value/savings' },

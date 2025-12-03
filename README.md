@@ -1,10 +1,10 @@
-# AdventHealth Innovation Hub
+# ContosoHealth Innovation Hub
 
 A comprehensive healthcare innovation management platform that enables organizations to capture, evaluate, and scale innovative ideas from across the enterprise.
 
 ## Value Proposition
 
-The AdventHealth Innovation Hub transforms how healthcare organizations manage innovation by providing a unified platform that connects frontline innovators with executive decision-makers. The platform delivers measurable business value through streamlined idea capture and evaluation, AI-powered analysis and recommendations, portfolio management with $100M+ value tracking, and gamification that drives engagement across the organization.
+The ContosoHealth Innovation Hub transforms how healthcare organizations manage innovation by providing a unified platform that connects frontline innovators with executive decision-makers. The platform delivers measurable business value through streamlined idea capture and evaluation, AI-powered analysis and recommendations, portfolio management with $100M+ value tracking, and gamification that drives engagement across the organization.
 
 The platform currently manages 100 ideas representing $647.9M in potential value, with 51 approved initiatives and an average ROI of 26.3:1. The Strategic Fit Matrix automatically categorizes ideas into Quick Wins (59 ideas) and Big Bets (41 ideas) based on value and effort scoring.
 
