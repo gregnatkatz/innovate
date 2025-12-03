@@ -87,6 +87,7 @@ const NOTIFICATIONS = [
 ];
 
 const getHeadshot = (name: string): string => {
+  if (!name) return '/images/headshots/male-caucasian-1.png';
   const nameLower = name.toLowerCase();
   const firstName = name.split(' ')[0].toLowerCase();
   const lastName = name.split(' ').slice(-1)[0].toLowerCase();
